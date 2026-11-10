@@ -1,124 +1,192 @@
-                      key={total}
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="text-2xl font-semibold tracking-tight text-zinc-50"
+                                  </span>
+                                  <span className="font-semibold text-zinc-100">{formatBRL(p.price)}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          <div>
+                            <p className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-500">
+                              Adicionais (opcional)
+                            </p>
+                            <div className="grid gap-2 sm:grid-cols-2">
+                              {addons.map((a) => {
+                                const on = form.addons.includes(a.id);
+                                return (
+                                  <button
+                                    key={a.id}
+                                    type="button"
+                                    onClick={() => toggleAddon(a.id)}
+                                    className={cn(
+                                      "flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left text-sm transition",
+                                      on
+                                        ? "border-amber-400/60 bg-amber-400/[0.07] text-zinc-100"
+                                        : "border-white/10 text-zinc-400 hover:border-white/20",
+                                    )}
+                                  >
+                                    <span className="flex items-center gap-2.5">
+                                      <span
+                                        className={cn(
+                                          "flex h-4 w-4 items-center justify-center rounded border",
+                                          on ? "border-amber-400 bg-amber-400" : "border-zinc-600",
+                                        )}
+                                      >
+                                        {on && <Check className="h-3 w-3 text-zinc-950" strokeWidth={3} />}
+                                      </span>
+                                      {a.label}
+                                    </span>
+                                    <span className="text-xs text-zinc-500">+{formatBRL(a.price)}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {step === 2 && (
+                        <div className="space-y-8">
+                          <div>
+                            <p className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-500">
+                              Escolha o dia
+                            </p>
+                            <div className="-mx-1 flex max-w-full touch-pan-x gap-2 overflow-x-auto overscroll-x-contain px-1 pb-3">
+                              {days.length === 0 && (
+                                <div className="h-20 w-full animate-pulse rounded-2xl bg-white/5" />
+                              )}
+                              {days.map(({ iso, date }) => {
+                                const active = form.date === iso;
+                                return (
+                                  <button
+                                    key={iso}
+                                    type="button"
+                                    onClick={() => {
+                                      set("date", iso);
+                                      set("time", "");
+                                    }}
+                                    className={cn(
+                                      "flex w-[68px] shrink-0 flex-col items-center rounded-2xl border py-3 transition",
+                                      active
+                                        ? "border-amber-400 bg-amber-400 text-zinc-950 shadow-lg shadow-amber-500/20"
+                                        : "border-white/10 text-zinc-400 hover:border-white/20",
+                                    )}
+                                  >
+                                    <span className={cn("text-[11px] uppercase", active ? "text-zinc-800" : "text-zinc-500")}>
+                                      {weekdayShort[date.getDay()]}
+                                    </span>
+                                    <span className="mt-0.5 text-xl font-semibold">{date.getDate()}</span>
+                                    <span className={cn("text-[11px] uppercase", active ? "text-zinc-800" : "text-zinc-600")}>
+                                      {monthShort[date.getMonth()]}
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          <div>
+                            <p className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-500">
+                              Horário de chegada
+                            </p>
+                            {!form.date ? (
+                              <p className="rounded-xl border border-dashed border-white/10 px-4 py-6 text-center text-sm text-zinc-600">
+                                Selecione um dia para ver os horários disponíveis.
+                              </p>
+                            ) : (
+                              <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+                                {timeSlots.map((t) => {
+                                  const isBusy = busy.has(t);
+                                  const active = form.time === t;
+                                  return (
+                                    <button
+                                      key={t}
+                                      type="button"
+                                      disabled={isBusy}
+                                      onClick={() => set("time", t)}
+                                      className={cn(
+                                        "rounded-xl border py-3 text-sm font-medium transition",
+                                        isBusy && "cursor-not-allowed border-white/5 text-zinc-700 line-through",
+                                        !isBusy && active && "border-amber-400 bg-amber-400 text-zinc-950",
+                                        !isBusy && !active && "border-white/10 text-zinc-300 hover:border-amber-400/40",
+                                      )}
+                                    >
+                                      {t}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {step === 3 && (
+                        <div className="grid gap-5 sm:grid-cols-2">
+                          <div className="sm:col-span-2">
+                            <Field label="Nome completo">
+                              <input
+                                className={inputCls}
+                                placeholder="Como devemos te chamar?"
+                                autoComplete="name"
+                                value={form.name}
+                                onChange={(e) => set("name", e.target.value)}
+                              />
+                            </Field>
+                          </div>
+                          <Field label="WhatsApp">
+                            <input
+                              className={inputCls}
+                              inputMode="tel"
+                              autoComplete="tel"
+                              placeholder="(11) 99999-9999"
+                              value={form.phone}
+                              onChange={(e) => set("phone", maskPhone(e.target.value))}
+                            />
+                          </Field>
+                          <Field label="E-mail">
+                            <input
+                              className={inputCls}
+                              type="email"
+                              autoComplete="email"
+                              placeholder="voce@email.com"
+                              value={form.email}
+                              onChange={(e) => set("email", e.target.value)}
+                            />
+                          </Field>
+                          <div className="sm:col-span-2">
+                            <Field label="Observações (opcional)" hint="Barulhos, luzes no painel, histórico de manutenção…">
+                              <textarea
+                                rows={3}
+                                className={cn(inputCls, "resize-none")}
+                                placeholder="Algo que a gente deva saber sobre o seu carro?"
+                                value={form.notes}
+                                onChange={(e) => set("notes", e.target.value)}
+                              />
+                            </Field>
+                          </div>
+                        </div>
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+
+                {/* Navegação */}
+                <div className="sticky bottom-0 z-30 -mx-4 mt-8 flex items-center justify-between gap-2 border-t border-white/10 bg-zinc-950/95 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4 shadow-[0_-12px_30px_rgba(0,0,0,0.35)] backdrop-blur-lg sm:static sm:mx-0 sm:bg-transparent sm:px-0 sm:pb-0 sm:pt-6 sm:shadow-none">
+                  <button
+                    type="button"
+                    onClick={() => setStep((s) => Math.max(0, s - 1))}
+                    disabled={step === 0}
+                    className="inline-flex min-h-12 shrink-0 touch-manipulation items-center gap-1 rounded-full px-3 py-3 text-sm font-medium text-zinc-400 transition hover:text-zinc-100 disabled:invisible sm:gap-1.5 sm:px-4"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    Voltar
+                  </button>
+
+                  {step < 3 ? (
+                    <button
+                      type="button"
+                      disabled={!canNext}
+                      onClick={() => setStep((s) => s + 1)}
+                      className="inline-flex min-h-12 flex-1 touch-manipulation items-center justify-center gap-1.5 rounded-full bg-amber-400 px-4 py-3 text-center text-sm font-semibold text-zinc-950 shadow-lg shadow-amber-500/20 transition hover:bg-amber-300 active:scale-95 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500 disabled:shadow-none sm:flex-none sm:px-6"
                     >
-                      {formatBRL(total)}
-                    </motion.span>
-                  </div>
-                  <p className="mt-1 text-xs text-zinc-600">Pagamento somente na retirada do veículo.</p>
-                </div>
-
-                <div className="mt-6 flex items-start gap-3 rounded-2xl border border-emerald-400/15 bg-emerald-400/[0.05] p-4 text-xs leading-relaxed text-emerald-200/80">
-                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
-                  Cancelamento gratuito até 4h antes e garantia de 6 meses em todos os serviços.
-                </div>
-              </aside>
-            </div>
-          )}
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
-function SummaryRow({
-  icon: Icon,
-  label,
-  children,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex gap-3">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-zinc-400">
-        <Icon className="h-4 w-4" />
-      </span>
-      <div className="min-w-0">
-        <dt className="text-xs text-zinc-500">{label}</dt>
-        <dd className="mt-0.5 font-medium text-zinc-200">{children}</dd>
-      </div>
-    </div>
-  );
-}
-
-function Success({
-  protocol,
-  form,
-  pkgName,
-  total,
-  onReset,
-}: {
-  protocol: string;
-  form: Form;
-  pkgName: string;
-  total: number;
-  onReset: () => void;
-}) {
-  const message = encodeURIComponent(
-    `Olá! Acabei de agendar a revisão (${protocol}) para ${formatLongDate(form.date)} às ${form.time}.`,
-  );
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.97 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="flex flex-col items-center px-6 py-14 text-center md:py-20"
-    >
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: "spring", stiffness: 260, damping: 18, delay: 0.1 }}
-        className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-400/10 text-emerald-300 ring-8 ring-emerald-400/5"
-      >
-        <PartyPopper className="h-9 w-9" />
-      </motion.div>
-
-      <h3 className="mt-6 text-2xl font-semibold tracking-tight text-zinc-50 md:text-3xl">
-        Agendamento confirmado, {form.name.split(" ")[0]}!
-      </h3>
-      <p className="mt-2 max-w-md text-zinc-400">
-        Enviamos os detalhes para <strong className="text-zinc-200">{form.email}</strong> e para o seu WhatsApp.
-      </p>
-
-      <div className="mt-8 w-full max-w-md divide-y divide-white/10 rounded-2xl border border-white/10 bg-white/[0.03] text-left text-sm">
-        {[
-          ["Protocolo", protocol],
-          ["Veículo", `${form.brand} ${form.model} · ${form.plate}`],
-          ["Serviço", pkgName],
-          ["Quando", `${formatLongDate(form.date)} às ${form.time}`],
-          ["Total estimado", formatBRL(total)],
-        ].map(([k, v]) => (
-          <div key={k} className="flex items-center justify-between gap-4 px-5 py-3.5">
-            <span className="text-zinc-500">{k}</span>
-            <span className={cn("text-right font-medium text-zinc-100", k === "Protocolo" && "font-mono tracking-widest text-amber-300", k === "Quando" && "capitalize")}>
-              {v}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <p className="mt-5 max-w-md text-xs text-zinc-600">{business.address}</p>
-
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-        <a
-          href={`https://wa.me/${business.whatsapp}?text=${message}`}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-400 px-6 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-emerald-300 active:scale-95"
-        >
-          Confirmar no WhatsApp
-        </a>
-        <button
-          type="button"
-          onClick={onReset}
-          className="rounded-full border border-white/10 px-6 py-3 text-sm font-medium text-zinc-300 transition hover:bg-white/5 active:scale-95"
-        >
-          Fazer novo agendamento
-        </button>
-      </div>
-    </motion.div>
-  );
-}
+                      Continuar
