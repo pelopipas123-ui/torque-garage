@@ -10,5 +10,12 @@
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
-  }
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "vinicar-db",
+      "database_id": "b4329dd5-7242-425a-9d6e-13c5deaf4f71"
+    }
+  ]
 }
